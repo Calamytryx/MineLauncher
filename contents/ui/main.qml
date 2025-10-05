@@ -242,7 +242,7 @@ PlasmoidItem {
                         
                         Flow {
                             width: scrollView.availableWidth
-                            spacing: Kirigami.Units.smallSpacing
+                            spacing: 0
                             
                             Repeater {
                                 model: getFilteredApps()

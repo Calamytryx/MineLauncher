@@ -23,23 +23,39 @@ Item {
         id: slotBg
         anchors.fill: parent
         color: hovered ? "#A0A0A0" : "#8B8B8B"
-        border.color: "#373737"
-        border.width:3
+        border.color: "#C6C6C6"
+        border.width: 3
+        antialiasing: false // Disable antialiasing for crisp edges
         
         Behavior on color {
             ColorAnimation { duration: 100 }
         }
         
-        // Inner highlight
+        // Inner rectangle with only top and left borders
         Rectangle {
+            id: innerBorders
             anchors.fill: parent
-            anchors.margins: Kirigami.Units.devicePixelRatio * 2
+            anchors.margins: 1  // Small margin to avoid overlap with parent border
             color: "transparent"
-            border.color: hovered ? "#FFFFFF" : "#C6C6C6"
-            border.width: Kirigami.Units.devicePixelRatio
-            opacity: 0.6
+            
+            // Top border
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 2
+                color: "#2a2a2a"
+            }
+            
+            // Left border
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.bottom: parent.bottom
+                width: 2
+                color: "#2a2a2a"
+            }
         }
-        
         // App icon
         Kirigami.Icon {
             anchors.centerIn: parent
@@ -112,4 +128,3 @@ Item {
         }
     }
 }
-
