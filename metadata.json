@@ -1,0 +1,22 @@
+{
+  "KPackageStructure": "Plasma/Applet",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Email": "calamytymytryx@gmail.com",
+        "Name": "CAL"
+      }
+    ],
+    "BugReportUrl": "",
+    "Category": "Application Launchers",
+    "Description": "Minecraft Creative Inventory style application launcher",
+    "EnabledByDefault": true,
+    "Icon": "grass_block.png",
+    "Id": "mc_inventory",
+    "License": "GPL-2.0+",
+    "Name": "MC Inventory",
+    "Website": ""
+  },
+  "X-Plasma-API-Minimum-Version": "6.0",
+  "X-Plasma-Provides": ["org.kde.plasma.launchermenu"]
+}
