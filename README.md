@@ -46,7 +46,11 @@ mc_inventory/
 
 ### Local Install (Recommended for testing)
 ```bash
-plasmapkg6 -t plasmoid -i ~/.local/share/plasma/plasmoids/mc_inventory/
+# Create the plasmoids folder if it doesn’t exist
+mkdir -p ~/.local/share/plasma/plasmoids/
+
+# Copy this project there
+cp -r mc_inventory ~/.local/share/plasma/plasmoids/
 ````
 
 Then right-click desktop → **Add Widgets** → search for “MineLauncher”.
@@ -64,7 +68,7 @@ kstart5 plasmashell
 ## 💻 Manual Uninstall
 
 ```bash
-plasmapkg6 -t plasmoid -r mc_inventory
+rm -rf ~/.local/share/plasma/plasmoids/mc_inventory/
 ```
 
 or remove manually:
