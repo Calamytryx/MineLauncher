@@ -70,13 +70,6 @@ kstart5 plasmashell
 ```bash
 rm -rf ~/.local/share/plasma/plasmoids/mc_inventory/
 ```
-
-or remove manually:
-
-```bash
-rm -rf ~/.local/share/plasma/plasmoids/mc_inventory/
-```
-
 ---
 
 ## 🧠 Development Notes
