@@ -3,6 +3,7 @@
 **MineLauncher** (package ID: `mc_inventory`) is a KDE Plasma 6 plasmoid that transforms your desktop app launcher into a **Minecraft Creative Inventory**–inspired grid.  
 No icons, no fluff — just shaped slots, categories, and pure blocky goodness. 🧱
 ![MineLauncher Preview](preview.png)
+![MineLauncher Preview New](preview2.png)
 ---
 
 ## 🧩 Features
