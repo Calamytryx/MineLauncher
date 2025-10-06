@@ -11,6 +11,9 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.private.kicker 0.1 as Kicker
 import org.kde.plasma.plasma5support 2.0 as P5Support
 
+// Import the local components - add this line
+import "." as Local
+
 PlasmoidItem {
     id: root
     
@@ -38,22 +41,6 @@ PlasmoidItem {
     fullRepresentation: Item {
         id: fullRep
         anchors.fill: parent
-        
-        // Auto-focus the search field when expanded
-        // and handle keyboard input for the entire menu
-        Keys.forwardTo: [searchField]
-        focus: true
-        
-        // Request focus when the menu is shown
-        Connections {
-            target: root
-            function onExpandedChanged() {
-                if (root.expanded) {
-                    searchField.forceActiveFocus();
-                    searchField.selectAll();
-                }
-            }
-        }
         
         property int contentWidth: Kirigami.Units.gridUnit * 40
         property int contentHeight: Kirigami.Units.gridUnit * 35
@@ -231,22 +218,6 @@ PlasmoidItem {
                                 font.pixelSize: searchField.height * 0.4
                                 horizontalAlignment: Text.AlignHLeft
                                 onTextChanged: searchText = text
-                                
-                                // Clear the search when Escape is pressed
-                                Keys.onEscapePressed: {
-                                    if (text != "") {
-                                        text = "";
-                                    } else {
-                                        root.expanded = false;
-                                    }
-                                }
-                                
-                                // When the text field gets focus, select all text for easy replacement
-                                onActiveFocusChanged: {
-                                    if (activeFocus) {
-                                        selectAll();
-                                    }
-                                }
                             }
                         }
                     }
@@ -290,12 +261,13 @@ PlasmoidItem {
                             // Force 10 columns
                             property int columns: 10
                             
-                            interactive: false // Disable user interaction on the grid itself
+                            // Enable interaction on the GridView itself
+                            interactive: true 
                             
                             // Make any change to contentY instantaneous
                             Behavior on contentY { NumberAnimation { duration: 0 } }
                             
-                            delegate: InventorySlot {
+                            delegate: Local.InventorySlot {
                                 appName: modelData.name
                                 appIcon: modelData.icon
                                 appExec: modelData.desktop
@@ -311,7 +283,8 @@ PlasmoidItem {
                             height: gridView.height
                             anchors.left: gridView.left
                             anchors.top: gridView.top
-                            acceptedButtons: Qt.NoButton // Only interested in wheel events
+                            acceptedButtons: Qt.NoButton 
+                            z: 10 // Ensure this is above other elements
                             onWheel: {
                                 let newY = gridView.contentY
                                 if (wheel.angleDelta.y < 0) { // Scroll down
@@ -330,7 +303,8 @@ PlasmoidItem {
                             height: inventoryContainer.favoriteBarHeight
                             anchors.left: gridView.left
                             anchors.top: gridView.bottom
-                            anchors.topMargin: ((gridView.height / 5) / 4 )
+                            // Use a more visible gap between grid and favorites
+                            anchors.topMargin: inventoryContainer.mainGridHeight * 0.05
                         }
 
                         // Favorite app bar
@@ -340,13 +314,14 @@ PlasmoidItem {
                             height: inventoryContainer.favoriteBarHeight
                             anchors.left: gridView.left
                             anchors.top: gridView.bottom
-                            anchors.topMargin: ((gridView.height / 5) / 4 )
+                            // Use a more visible gap between grid and favorites
+                            anchors.topMargin: inventoryContainer.mainGridHeight * 0.05
                             columns: 10
                             
                             Repeater {
                                 model: 10
                                 
-                                InventorySlot {
+                                Local.InventorySlot {
                                     property var favoriteApp: index < favoriteApps.length ? getFavoriteAppData(favoriteApps[index]) : null
                                     
                                     appName: favoriteApp ? favoriteApp.name : ""
@@ -379,7 +354,6 @@ PlasmoidItem {
                             id: scrollbarArea
                             width: inventoryContainer.scrollbarWidth
                             height: favoriteBar.height + gridView.height + ((gridView.height / 5) / 4 )
-                            y: 4
                             anchors.right: parent.right
                             color: "#8b8b8b"
 
@@ -415,7 +389,7 @@ PlasmoidItem {
 
                             Rectangle {
                                 id: scrollbarHandle
-                                width: parent.width * 0.9
+                                width: parent.width * 0.92
                                 height: Kirigami.Units.gridUnit * 3.5
                                 color: "#5B5B5B"
                                 anchors.horizontalCenter: parent.horizontalCenter
@@ -450,12 +424,16 @@ PlasmoidItem {
                                     color: "#2a2a2a"
                                 }
 
-                                // Calculate Y position based on GridView's scroll
+                                // Calculate Y position based on GridView's scroll with snapping
                                 y: {
-                                    let scrollableHeight = gridView.contentHeight - gridView.height
-                                    let handleScrollableHeight = scrollbarArea.height - height
-                                    if (scrollableHeight <= 0) return 0
-                                    return (gridView.contentY / scrollableHeight) * handleScrollableHeight
+                                    let scrollableHeight = Math.max(1, gridView.contentHeight - gridView.height)
+                                    let handleScrollableHeight = Math.max(1, scrollbarArea.height - height)
+                                    
+                                    // Make sure position aligns with rows
+                                    let rowPosition = Math.round(gridView.contentY / gridView.cellHeight)
+                                    let snappedContentY = rowPosition * gridView.cellHeight
+                                    
+                                    return Math.min(handleScrollableHeight, (snappedContentY / scrollableHeight) * handleScrollableHeight)
                                 }
 
                                 MouseArea {
@@ -465,19 +443,25 @@ PlasmoidItem {
                                     drag.minimumY: 0
                                     drag.maximumY: scrollbarArea.height - parent.height
 
+                                    // Track when dragging starts and ends
+                                    property bool isDragging: false
+                                    onPressed: isDragging = true
+                                    onReleased: isDragging = false
+                                    
+                                    // Handle drag movement with row snapping
                                     onPositionChanged: {
-                                        let scrollableHeight = gridView.contentHeight - gridView.height
-                                        let handleScrollableHeight = scrollbarArea.height - parent.height
-                                        if (handleScrollableHeight <= 0) return
-
+                                        if (!isDragging) return
+                                        
+                                        let scrollableHeight = Math.max(1, gridView.contentHeight - gridView.height)
+                                        let handleScrollableHeight = Math.max(1, scrollbarArea.height - parent.height)
+                                        
                                         // Calculate the scroll ratio from the handle's drag position
                                         let scrollRatio = parent.y / handleScrollableHeight
+                                        let rawContentY = scrollRatio * scrollableHeight
                                         
-                                        // Calculate the ideal, continuous content position
-                                        let continuousContentY = scrollRatio * scrollableHeight
-                                        
-                                        // Snap the content position to the nearest cell row
-                                        let snappedContentY = Math.round(continuousContentY / gridView.cellHeight) * gridView.cellHeight
+                                        // Snap to grid rows (like the mousewheel does)
+                                        let rowPosition = Math.round(rawContentY / gridView.cellHeight)
+                                        let snappedContentY = rowPosition * gridView.cellHeight
                                         
                                         // Apply the snapped position to the GridView
                                         gridView.contentY = snappedContentY
@@ -708,14 +692,17 @@ PlasmoidItem {
     function getFilteredApps() {
         let apps = []
         let seenDesktopFiles = {}
+        let seenAppNames = {}
         
+        // First pass - collect all apps that match our criteria
         for (let source in appsSource.data) {
             let appData = appsSource.data[source]
             if (appData.name && !appData.NoDisplay) {
                 let desktopFile = appData.storageId || source
+                let displayName = appData.name || appData.genericName || source
                 
-                // Skip if we've already seen this desktop file
-                if (seenDesktopFiles[desktopFile]) {
+                // Skip if we've already seen this desktop file or app name
+                if (seenDesktopFiles[desktopFile] || seenAppNames[displayName.toLowerCase()]) {
                     continue
                 }
                 
@@ -750,7 +737,6 @@ PlasmoidItem {
                     }
                 }
                 
-                let displayName = appData.name || appData.genericName || source
                 let matchesSearch = searchText === "" || 
                     displayName.toLowerCase().includes(searchText.toLowerCase())
                 
@@ -761,16 +747,34 @@ PlasmoidItem {
                         desktop: desktopFile
                     })
                     seenDesktopFiles[desktopFile] = true
+                    seenAppNames[displayName.toLowerCase()] = true
                 }
             }
         }
-        // Always ensure we have exactly 50 items (5 rows × 10 columns)
+        
+        // Sort apps alphabetically for consistent ordering
+        apps.sort((a, b) => a.name.localeCompare(b.name));
+        
+        // Make sure we have at least 50 items (5 rows × 10 columns)
+        // but don't limit maximum to allow scrolling when needed
         while (apps.length < 50) {
             apps.push({
                 name: "",
                 icon: "",
                 desktop: ""
             })
+        }
+        
+        // Ensure apps.length is a multiple of 10 (for clean grid layout)
+        let remainder = apps.length % 10;
+        if (remainder > 0) {
+            for (let i = 0; i < (10 - remainder); i++) {
+                apps.push({
+                    name: "",
+                    icon: "",
+                    desktop: ""
+                });
+            }
         }
         
         return apps

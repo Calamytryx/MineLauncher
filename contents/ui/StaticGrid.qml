@@ -12,7 +12,7 @@ Grid {
     readonly property int totalCells: numCols * numRows
 
     columns: numCols
-    z: 9999999
+    z: 10
 
     Repeater {
         model: staticGrid.totalCells
