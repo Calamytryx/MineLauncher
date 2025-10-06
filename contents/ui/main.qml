@@ -36,557 +36,596 @@ PlasmoidItem {
     }
     
     fullRepresentation: Item {
-        x: plasmoid.screenGeometry.x + (plasmoid.screenGeometry.width - width) / 2
-        y: plasmoid.screenGeometry.y + (plasmoid.screenGeometry.height - height) / 2
-
-
-        Layout.preferredWidth: (backgroundRect.width)
-        Layout.preferredHeight: (topCategoriesRow.height + bottomCategoriesRow.height + backgroundRect.height) // Dynamic height based on content
-        Layout.minimumWidth: Kirigami.Units.gridUnit * 40
-        Layout.minimumHeight: Kirigami.Units.gridUnit * 33 // Adjusted minimum accordingly
+        id: fullRep
+        anchors.fill: parent
         
-        // Top categories outside the main container
-        RowLayout {
-            id: topCategoriesRow
-            anchors.top: parent.top
-            anchors.bottomMargin: -2  // Negative margin to overlap the border
-            anchors.left: parent.left
+        // Auto-focus the search field when expanded
+        // and handle keyboard input for the entire menu
+        Keys.forwardTo: [searchField]
+        focus: true
+        
+        // Request focus when the menu is shown
+        Connections {
+            target: root
+            function onExpandedChanged() {
+                if (root.expanded) {
+                    searchField.forceActiveFocus();
+                    searchField.selectAll();
+                }
+            }
+        }
+        
+        property int contentWidth: Kirigami.Units.gridUnit * 40
+        property int contentHeight: Kirigami.Units.gridUnit * 35
+        property int minimumWidth: Kirigami.Units.gridUnit * 30
+        property int minimumHeight: Kirigami.Units.gridUnit * 25
 
-            height: Kirigami.Units.gridUnit * 3
-            spacing: Kirigami.Units.smallSpacing
-            z: 999999999
-            
-            // Top categories
-            Repeater {
-            model: topCategories
-            
-                CategoryTab {
-                    Layout.preferredWidth: Kirigami.Units.gridUnit * 3
-                    Layout.preferredHeight: Kirigami.Units.gridUnit * 3
-                    categoryId: modelData.id
-                    categoryName: modelData.name
-                    categoryIcon: modelData.icon
-                    isActive: currentCategory === modelData.id
-                    onClicked: currentCategory = modelData.id
+        Item {
+            id: mainContainer
+            width: Math.max(parent.width > contentWidth ? contentWidth : parent.width, fullRep.minimumWidth)
+            height: Math.max(parent.height > contentHeight ? contentHeight : parent.height, fullRep.minimumHeight)
+            anchors.centerIn: parent
 
-                    Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                    border.color: "transparent"
-                    border.width: 3
-                    antialiasing: false
+            // Top categories outside the main container
+            RowLayout {
+                id: topCategoriesRow
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: Kirigami.Units.gridUnit * 3
+                spacing: Kirigami.Units.smallSpacing
+                z: 999999999
+                
+                // Top categories
+                Repeater {
+                model: topCategories
+                
+                    CategoryTab {
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 3
+                        Layout.preferredHeight: Kirigami.Units.gridUnit * 3
+                        categoryId: modelData.id
+                        categoryName: modelData.name
+                        categoryIcon: modelData.icon
+                        isActive: currentCategory === modelData.id
+                        onClicked: currentCategory = modelData.id
 
                         Rectangle {
-                            anchors.fill: parent
-                            color: "transparent"
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: "transparent"
+                        border.width: 3
+                        antialiasing: false
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "transparent"
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "#f7f7f7"
+                                }
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#f7f7f7"
+                                }
+                                Rectangle {
+                                anchors.bottom: parent.bottom
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "#c6c6c6"
+                                }
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#2a2a2a"
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Item { Layout.fillWidth: true }
+            }
+            
+            // Minecraft-style background (now smaller, containing only search, inventory grid, favorite bar, and scrollbar)
+            Rectangle {
+                id: backgroundRect
+                anchors.top: topCategoriesRow.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: bottomCategoriesRow.top
+                color: "#C6C6C6"
+                
+                Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: "transparent"
+                        border.width: 3
+                        antialiasing: false
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "transparent"
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "#f7f7f7"
+                                }
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#f7f7f7"
+                                }
+                                Rectangle {
+                                anchors.bottom: parent.bottom
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "#2a2a2a"
+                                }
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#2a2a2a"
+                                }
+                            }
+                        }
+                
+                
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: Kirigami.Units.smallSpacing * 2
+                    spacing: Kirigami.Units.smallSpacing
+                    
+                    // Search row inside the container
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Text {
+                            text: currentCategory
+                            font.pixelSize: searchField.height
+                            color: "#404040"
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+                        
+                        Item { Layout.fillWidth: true }
+                        
+                        // Search button/field
+                        Rectangle {
+                            Layout.preferredWidth: Kirigami.Units.gridUnit * 9
+                            Layout.preferredHeight: Kirigami.Units.gridUnit * 3
+                            color: "#8B8B8B"
+                            border.color: "#373737"
+                            border.width: Kirigami.Units.devicePixelRatio * 2
                             
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "#f7f7f7"
+                            TextField {
+                                id: searchField
+                                anchors.fill: parent
+                                anchors.margins: Kirigami.Units.smallSpacing
+                                placeholderText: "🔍 Search"
+                                background: Rectangle {
+                                    color: "#000000"
+                                    opacity: 0.4
+                                }
+                                color: "#FFFFFF"
+                                font.pixelSize: searchField.height * 0.4
+                                horizontalAlignment: Text.AlignHLeft
+                                onTextChanged: searchText = text
+                                
+                                // Clear the search when Escape is pressed
+                                Keys.onEscapePressed: {
+                                    if (text != "") {
+                                        text = "";
+                                    } else {
+                                        root.expanded = false;
+                                    }
+                                }
+                                
+                                // When the text field gets focus, select all text for easy replacement
+                                onActiveFocusChanged: {
+                                    if (activeFocus) {
+                                        selectAll();
+                                    }
+                                }
                             }
+                        }
+                    }
+                    
+                    // Inventory grid with custom scrollbar
+                    Rectangle {
+                        id: inventoryContainer
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        color: "#c6c6c6"
+
+                        readonly property int scrollbarWidth: Kirigami.Units.gridUnit * 3.5 * 0.75
+                        readonly property int separatorWidth: Kirigami.Units.gridUnit * 3.5 * 0.25
+                        readonly property int gridAreaWidth: width - scrollbarWidth - separatorWidth
+                        readonly property int favoriteBarHeight: Kirigami.Units.gridUnit * 3.5
+                        readonly property int mainGridHeight: Kirigami.Units.gridUnit * 3.5 * 5
+
+                        StaticGrid {
+                            id: staticGridDisplay
+                            width: inventoryContainer.gridAreaWidth
+                            height: inventoryContainer.mainGridHeight
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.margins: Kirigami.Units.smallSpacing
+                        }
+
+                        GridView {
+                            id: gridView
+                            width: inventoryContainer.gridAreaWidth
+                            height: inventoryContainer.mainGridHeight
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.margins: Kirigami.Units.smallSpacing
+                            clip: true
                             
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#f7f7f7"
+                            model: getFilteredApps()
+                            
+                            cellWidth: Kirigami.Units.gridUnit * 3.5
+                            cellHeight: Kirigami.Units.gridUnit * 3.5
+                            
+                            // Force 10 columns
+                            property int columns: 10
+                            
+                            interactive: false // Disable user interaction on the grid itself
+                            
+                            // Make any change to contentY instantaneous
+                            Behavior on contentY { NumberAnimation { duration: 0 } }
+                            
+                            delegate: InventorySlot {
+                                appName: modelData.name
+                                appIcon: modelData.icon
+                                appExec: modelData.desktop
+                                isFavorite: root.isFavorite(modelData.desktop)
+                                isFavoriteRow: false
+                                onClicked: launchApp(appExec)
+                                onRightClicked: root.toggleFavorite(appExec)
                             }
-                            Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "#c6c6c6"
+                        }
+                        
+                        MouseArea {
+                            width: gridView.width
+                            height: gridView.height
+                            anchors.left: gridView.left
+                            anchors.top: gridView.top
+                            acceptedButtons: Qt.NoButton // Only interested in wheel events
+                            onWheel: {
+                                let newY = gridView.contentY
+                                if (wheel.angleDelta.y < 0) { // Scroll down
+                                    newY += gridView.cellHeight
+                                } else if (wheel.angleDelta.y > 0) { // Scroll up
+                                    newY -= gridView.cellHeight
+                                }
+                                // Clamp the position to prevent overscrolling
+                                gridView.contentY = Math.max(0, Math.min(newY, gridView.contentHeight - gridView.height))
                             }
-                            Rectangle {
-                            anchors.top: parent.top
+                        }
+
+                        // Static favorite grid background
+                        StaticFavoriteGrid {
+                            width: inventoryContainer.gridAreaWidth
+                            height: inventoryContainer.favoriteBarHeight
+                            anchors.left: gridView.left
+                            anchors.top: gridView.bottom
+                            anchors.topMargin: ((gridView.height / 5) / 4 )
+                        }
+
+                        // Favorite app bar
+                        Grid {
+                            id: favoriteBar
+                            width: inventoryContainer.gridAreaWidth
+                            height: inventoryContainer.favoriteBarHeight
+                            anchors.left: gridView.left
+                            anchors.top: gridView.bottom
+                            anchors.topMargin: ((gridView.height / 5) / 4 )
+                            columns: 10
+                            
+                            Repeater {
+                                model: 10
+                                
+                                InventorySlot {
+                                    property var favoriteApp: index < favoriteApps.length ? getFavoriteAppData(favoriteApps[index]) : null
+                                    
+                                    appName: favoriteApp ? favoriteApp.name : ""
+                                    appIcon: favoriteApp ? favoriteApp.icon : ""
+                                    appExec: favoriteApp ? favoriteApp.desktop : ""
+                                    isFavorite: true
+                                    isFavoriteRow: true
+                                    onClicked: {
+                                        if (appExec) launchApp(appExec)
+                                    }
+                                    onRightClicked: {
+                                        if (appExec) root.toggleFavorite(appExec)
+                                    }
+                                }
+                            }
+                        }
+
+                        // Separator wall
+                        Rectangle {
+                            id: separatorWall
+                            width: ((gridView.height / 5) / 4 )
+                            height: parent.height
+                            anchors.right: scrollbarArea.left
+                            anchors.left: gridView.right
+                            color: "#C6C6C6"
+                        }
+
+                        // Custom Scrollbar
+                        Rectangle {
+                            id: scrollbarArea
+                            width: inventoryContainer.scrollbarWidth
+                            height: favoriteBar.height + gridView.height + ((gridView.height / 5) / 4 )
+                            y: 4
                             anchors.right: parent.right
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#2a2a2a"
+                            color: "#8b8b8b"
+
+                            Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    height: 2
+                                    color: "#2a2a2a"
+                                }
+                                
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.left: parent.left
+                                    anchors.bottom: parent.bottom
+                                    width: 2
+                                    color: "#2a2a2a"
+                                }
+                                Rectangle {
+                                    anchors.bottom: parent.bottom
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    height: 2
+                                    color: "#f7f7f7"
+                                }
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    width: 2
+                                    color: "#f7f7f7"
+                                }
+
+                            Rectangle {
+                                id: scrollbarHandle
+                                width: parent.width * 0.9
+                                height: Kirigami.Units.gridUnit * 3.5
+                                color: "#5B5B5B"
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    height: 2
+                                    color: "#f7f7f7"
+                                }
+                                
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.left: parent.left
+                                    anchors.bottom: parent.bottom
+                                    width: 2
+                                    color: "#f7f7f7"
+                                }
+                                Rectangle {
+                                    anchors.bottom: parent.bottom
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    height: 2
+                                    color: "#2a2a2a"
+                                }
+                                Rectangle {
+                                    anchors.top: parent.top
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    width: 2
+                                    color: "#2a2a2a"
+                                }
+
+                                // Calculate Y position based on GridView's scroll
+                                y: {
+                                    let scrollableHeight = gridView.contentHeight - gridView.height
+                                    let handleScrollableHeight = scrollbarArea.height - height
+                                    if (scrollableHeight <= 0) return 0
+                                    return (gridView.contentY / scrollableHeight) * handleScrollableHeight
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    drag.target: parent
+                                    drag.axis: Drag.YAxis
+                                    drag.minimumY: 0
+                                    drag.maximumY: scrollbarArea.height - parent.height
+
+                                    onPositionChanged: {
+                                        let scrollableHeight = gridView.contentHeight - gridView.height
+                                        let handleScrollableHeight = scrollbarArea.height - parent.height
+                                        if (handleScrollableHeight <= 0) return
+
+                                        // Calculate the scroll ratio from the handle's drag position
+                                        let scrollRatio = parent.y / handleScrollableHeight
+                                        
+                                        // Calculate the ideal, continuous content position
+                                        let continuousContentY = scrollRatio * scrollableHeight
+                                        
+                                        // Snap the content position to the nearest cell row
+                                        let snappedContentY = Math.round(continuousContentY / gridView.cellHeight) * gridView.cellHeight
+                                        
+                                        // Apply the snapped position to the GridView
+                                        gridView.contentY = snappedContentY
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        
-        // Minecraft-style background (now smaller, containing only search, inventory grid, favorite bar, and scrollbar)
-        Rectangle {
-            id: backgroundRect
-            anchors.top: topCategoriesRow.bottom
-            anchors.bottom: bottomCategoriesRow.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            color: "#C6C6C6"
             
-            Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                    border.color: "transparent"
-                    border.width: 3
-                    antialiasing: false
-
-                        Rectangle {
-                            anchors.fill: parent
-                            color: "transparent"
-                            
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "#f7f7f7"
-                            }
-                            
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#f7f7f7"
-                            }
-                            Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "#2a2a2a"
-                            }
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.right: parent.right
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#2a2a2a"
-                            }
-                        }
-                    }
-            
-            
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: Kirigami.Units.smallSpacing * 2
+            // Bottom categories outside the main container
+            RowLayout {
+                id: bottomCategoriesRow
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                height: Kirigami.Units.gridUnit * 3
                 spacing: Kirigami.Units.smallSpacing
                 
-                // Search row inside the container
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Kirigami.Units.smallSpacing
-
-                    Text {
-                        text: currentCategory
-                        font.pixelSize: searchField.height
-                        color: "#404040"
-                        verticalAlignment: Text.AlignVCenter
-                        Layout.alignment: Qt.AlignVCenter
-                    }
+                // Bottom categories
+                Repeater {
+                    model: bottomCategories
                     
-                    Item { Layout.fillWidth: true }
-                    
-                    // Search button/field
-                    Rectangle {
-                        Layout.preferredWidth: Kirigami.Units.gridUnit * 9
+                    CategoryTab {
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 3
                         Layout.preferredHeight: Kirigami.Units.gridUnit * 3
-                        color: "#8B8B8B"
-                        border.color: "#373737"
-                        border.width: Kirigami.Units.devicePixelRatio * 2
-                        
-                        TextField {
-                            id: searchField
-                            anchors.fill: parent
-                            anchors.margins: Kirigami.Units.smallSpacing
-                            placeholderText: "🔍 Search"
-                            background: Rectangle {
-                                color: "#000000"
-                                opacity: 0.4
+                        categoryId: modelData.id
+                        categoryName: modelData.name
+                        categoryIcon: modelData.icon
+                        isActive: currentCategory === modelData.id
+                        onClicked: currentCategory = modelData.id
+
+                        Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: "transparent"
+                        border.width: 3
+                        antialiasing: false
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "transparent"
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "#c6c6c6"
+                                }
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#f7f7f7"
+                                }
+                                Rectangle {
+                                anchors.bottom: parent.bottom
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "#2a2a2a"
+                                }
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#2a2a2a"
+                                }
                             }
-                            color: "#FFFFFF"
-                            font.pixelSize: searchField.height * 0.4
-                            horizontalAlignment: Text.AlignHLeft
-                            onTextChanged: searchText = text
                         }
+                        
                     }
                 }
-                
-                // Inventory grid with custom scrollbar
+
+                Item { Layout.fillWidth: true }
+
+                // Close button
                 Rectangle {
-                    id: inventoryContainer
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    color: "#c6c6c6"
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 3
+                    Layout.preferredHeight: Kirigami.Units.gridUnit * 3
+                    color: "#8B8B8B"
+                    border.color: "#373737"
+                    border.width: Kirigami.Units.devicePixelRatio * 2
 
-                    readonly property int scrollbarWidth: Kirigami.Units.gridUnit * 3.5 * 0.75
-                    readonly property int separatorWidth: Kirigami.Units.gridUnit * 3.5 * 0.25
-                    readonly property int gridAreaWidth: width - scrollbarWidth - separatorWidth
-                    readonly property int favoriteBarHeight: Kirigami.Units.gridUnit * 3.5
-                    readonly property int mainGridHeight: Kirigami.Units.gridUnit * 3.5 * 5
+                    Rectangle {
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: "transparent"
+                        border.width: 3
+                        antialiasing: false
 
-                    StaticGrid {
-                        id: staticGridDisplay
-                        width: inventoryContainer.gridAreaWidth
-                        height: inventoryContainer.mainGridHeight
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        anchors.margins: Kirigami.Units.smallSpacing
-                    }
-
-                    GridView {
-                        id: gridView
-                        width: inventoryContainer.gridAreaWidth
-                        height: inventoryContainer.mainGridHeight
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        anchors.margins: Kirigami.Units.smallSpacing
-                        clip: true
-                        
-                        model: getFilteredApps()
-                        
-                        cellWidth: Kirigami.Units.gridUnit * 3.5
-                        cellHeight: Kirigami.Units.gridUnit * 3.5
-                        
-                        // Force 10 columns
-                        property int columns: 10
-                        
-                        interactive: false // Disable user interaction on the grid itself
-                        
-                        // Make any change to contentY instantaneous
-                        Behavior on contentY { NumberAnimation { duration: 0 } }
-                        
-                        delegate: InventorySlot {
-                            appName: modelData.name
-                            appIcon: modelData.icon
-                            appExec: modelData.desktop
-                            isFavorite: root.isFavorite(modelData.desktop)
-                            isFavoriteRow: false
-                            onClicked: launchApp(appExec)
-                            onRightClicked: root.toggleFavorite(appExec)
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "transparent"
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "transparent"
+                                }
+                                
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#f7f7f7"
+                                }
+                                Rectangle {
+                                anchors.bottom: parent.bottom
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                height: 2
+                                color: "#2a2a2a"
+                                }
+                                Rectangle {
+                                anchors.top: parent.top
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                width: 2
+                                color: "#2a2a2a"
+                                }
+                            }
                         }
+                    
+                    Text {
+                        anchors.centerIn: parent
+                        text: "✕"
+                        color: "#FFFFFF"
+                        font.pixelSize: Kirigami.Units.gridUnit
+                        font.bold: true
                     }
                     
                     MouseArea {
-                        width: gridView.width
-                        height: gridView.height
-                        anchors.left: gridView.left
-                        anchors.top: gridView.top
-                        acceptedButtons: Qt.NoButton // Only interested in wheel events
-                        onWheel: {
-                            let newY = gridView.contentY
-                            if (wheel.angleDelta.y < 0) { // Scroll down
-                                newY += gridView.cellHeight
-                            } else if (wheel.angleDelta.y > 0) { // Scroll up
-                                newY -= gridView.cellHeight
-                            }
-                            // Clamp the position to prevent overscrolling
-                            gridView.contentY = Math.max(0, Math.min(newY, gridView.contentHeight - gridView.height))
-                        }
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.expanded = false
+                        onEntered: parent.color = "#A0A0A0"
+                        onExited: parent.color = "#8B8B8B"
                     }
-
-                    // Static favorite grid background
-                    StaticFavoriteGrid {
-                        width: inventoryContainer.gridAreaWidth
-                        height: inventoryContainer.favoriteBarHeight
-                        anchors.left: gridView.left
-                        anchors.top: gridView.bottom
-                        anchors.topMargin: ((gridView.height / 5) / 4 )
-                    }
-
-                    // Favorite app bar
-                    Grid {
-                        id: favoriteBar
-                        width: inventoryContainer.gridAreaWidth
-                        height: inventoryContainer.favoriteBarHeight
-                        anchors.left: gridView.left
-                        anchors.top: gridView.bottom
-                        anchors.topMargin: ((gridView.height / 5) / 4 )
-                        columns: 10
-                        
-                        Repeater {
-                            model: 10
-                            
-                            InventorySlot {
-                                property var favoriteApp: index < favoriteApps.length ? getFavoriteAppData(favoriteApps[index]) : null
-                                
-                                appName: favoriteApp ? favoriteApp.name : ""
-                                appIcon: favoriteApp ? favoriteApp.icon : ""
-                                appExec: favoriteApp ? favoriteApp.desktop : ""
-                                isFavorite: true
-                                isFavoriteRow: true
-                                onClicked: {
-                                    if (appExec) launchApp(appExec)
-                                }
-                                onRightClicked: {
-                                    if (appExec) root.toggleFavorite(appExec)
-                                }
-                            }
-                        }
-                    }
-
-                    // Separator wall
-                    Rectangle {
-                        id: separatorWall
-                        width: ((gridView.height / 5) / 4 )
-                        height: parent.height
-                        anchors.right: scrollbarArea.left
-                        anchors.left: gridView.right
-                        color: "#C6C6C6"
-                    }
-
-                    // Custom Scrollbar
-                    Rectangle {
-                        id: scrollbarArea
-                        width: inventoryContainer.scrollbarWidth
-                        height: favoriteBar.height + gridView.height + ((gridView.height / 5) / 4 )
-                        y: 4
-                        anchors.right: parent.right
-                        color: "#8b8b8b"
-
-                        Rectangle {
-                                anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: 2
-                                color: "#2a2a2a"
-                            }
-                            
-                            Rectangle {
-                                anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.bottom: parent.bottom
-                                width: 2
-                                color: "#2a2a2a"
-                            }
-                            Rectangle {
-                                anchors.bottom: parent.bottom
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: 2
-                                color: "#f7f7f7"
-                            }
-                            Rectangle {
-                                anchors.top: parent.top
-                                anchors.right: parent.right
-                                anchors.bottom: parent.bottom
-                                width: 2
-                                color: "#f7f7f7"
-                            }
-
-                        Rectangle {
-                            id: scrollbarHandle
-                            width: parent.width * 0.9
-                            height: Kirigami.Units.gridUnit * 3.5
-                            color: "#5B5B5B"
-                            anchors.horizontalCenter: parent.horizontalCenter
-
-                            Rectangle {
-                                anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: 2
-                                color: "#f7f7f7"
-                            }
-                            
-                            Rectangle {
-                                anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.bottom: parent.bottom
-                                width: 2
-                                color: "#f7f7f7"
-                            }
-                            Rectangle {
-                                anchors.bottom: parent.bottom
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: 2
-                                color: "#2a2a2a"
-                            }
-                            Rectangle {
-                                anchors.top: parent.top
-                                anchors.right: parent.right
-                                anchors.bottom: parent.bottom
-                                width: 2
-                                color: "#2a2a2a"
-                            }
-
-                            // Calculate Y position based on GridView's scroll
-                            y: {
-                                let scrollableHeight = gridView.contentHeight - gridView.height
-                                let handleScrollableHeight = scrollbarArea.height - height
-                                if (scrollableHeight <= 0) return 0
-                                return (gridView.contentY / scrollableHeight) * handleScrollableHeight
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                drag.target: parent
-                                drag.axis: Drag.YAxis
-                                drag.minimumY: 0
-                                drag.maximumY: scrollbarArea.height - parent.height
-
-                                onPositionChanged: {
-                                    let scrollableHeight = gridView.contentHeight - gridView.height
-                                    let handleScrollableHeight = scrollbarArea.height - parent.height
-                                    if (handleScrollableHeight <= 0) return
-
-                                    // Calculate the scroll ratio from the handle's drag position
-                                    let scrollRatio = parent.y / handleScrollableHeight
-                                    
-                                    // Calculate the ideal, continuous content position
-                                    let continuousContentY = scrollRatio * scrollableHeight
-                                    
-                                    // Snap the content position to the nearest cell row
-                                    let snappedContentY = Math.round(continuousContentY / gridView.cellHeight) * gridView.cellHeight
-                                    
-                                    // Apply the snapped position to the GridView
-                                    gridView.contentY = snappedContentY
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Bottom categories outside the main container
-        RowLayout {
-            id: bottomCategoriesRow
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: Kirigami.Units.gridUnit * 3
-            spacing: Kirigami.Units.smallSpacing
-            
-            // Bottom categories
-            Repeater {
-                model: bottomCategories
-                
-                CategoryTab {
-                    Layout.preferredWidth: Kirigami.Units.gridUnit * 3
-                    Layout.preferredHeight: Kirigami.Units.gridUnit * 3
-                    categoryId: modelData.id
-                    categoryName: modelData.name
-                    categoryIcon: modelData.icon
-                    isActive: currentCategory === modelData.id
-                    onClicked: currentCategory = modelData.id
-
-                    Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                    border.color: "transparent"
-                    border.width: 3
-                    antialiasing: false
-
-                        Rectangle {
-                            anchors.fill: parent
-                            color: "transparent"
-                            
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "#c6c6c6"
-                            }
-                            
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#f7f7f7"
-                            }
-                            Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "#2a2a2a"
-                            }
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.right: parent.right
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#2a2a2a"
-                            }
-                        }
-                    }
-                    
-                }
-            }
-
-            Item { Layout.fillWidth: true }
-
-            // Close button
-            Rectangle {
-                Layout.preferredWidth: Kirigami.Units.gridUnit * 3
-                Layout.preferredHeight: Kirigami.Units.gridUnit * 3
-                color: "#8B8B8B"
-                border.color: "#373737"
-                border.width: Kirigami.Units.devicePixelRatio * 2
-
-                Rectangle {
-                    anchors.fill: parent
-                    color: "transparent"
-                    border.color: "transparent"
-                    border.width: 3
-                    antialiasing: false
-
-                        Rectangle {
-                            anchors.fill: parent
-                            color: "transparent"
-                            
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "transparent"
-                            }
-                            
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#f7f7f7"
-                            }
-                            Rectangle {
-                            anchors.bottom: parent.bottom
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            height: 2
-                            color: "#2a2a2a"
-                            }
-                            Rectangle {
-                            anchors.top: parent.top
-                            anchors.right: parent.right
-                            anchors.bottom: parent.bottom
-                            width: 2
-                            color: "#2a2a2a"
-                            }
-                        }
-                    }
-                
-                Text {
-                    anchors.centerIn: parent
-                    text: "✕"
-                    color: "#FFFFFF"
-                    font.pixelSize: Kirigami.Units.gridUnit
-                    font.bold: true
-                }
-                
-                MouseArea {
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.expanded = false
-                    onEntered: parent.color = "#A0A0A0"
-                    onExited: parent.color = "#8B8B8B"
                 }
             }
         }
