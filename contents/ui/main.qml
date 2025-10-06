@@ -42,8 +42,8 @@ PlasmoidItem {
 
         Layout.preferredWidth: (backgroundRect.width)
         Layout.preferredHeight: (topCategoriesRow.height + bottomCategoriesRow.height + backgroundRect.height) // Dynamic height based on content
-        Layout.minimumWidth: Kirigami.Units.gridUnit * 30
-        Layout.minimumHeight: Kirigami.Units.gridUnit * 19 // Adjusted minimum accordingly
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 40
+        Layout.minimumHeight: Kirigami.Units.gridUnit * 33 // Adjusted minimum accordingly
         
         // Top categories outside the main container
         RowLayout {
