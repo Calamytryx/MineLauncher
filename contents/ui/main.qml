@@ -59,9 +59,11 @@ PlasmoidItem {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
+                // Make the top tabs overlap the background by adding bottom margin
+                anchors.bottomMargin: -2  // Negative margin creates overlap
                 height: Kirigami.Units.gridUnit * 3
                 spacing: Kirigami.Units.smallSpacing
-                z: 999999999
+                z: 100  // Ensure tabs are above the background
                 
                 // Top categories
                 Repeater {
@@ -127,56 +129,64 @@ PlasmoidItem {
             // Minecraft-style background (now smaller, containing only search, inventory grid, favorite bar, and scrollbar)
             Rectangle {
                 id: backgroundRect
+                // Adjust top anchor to allow tabs to overlap
                 anchors.top: topCategoriesRow.bottom
+                anchors.topMargin: -2
                 anchors.left: parent.left
                 anchors.right: parent.right
+                // Adjust bottom anchor to allow bottom tabs to overlap
                 anchors.bottom: bottomCategoriesRow.top
+                anchors.bottomMargin: -2
                 color: "#C6C6C6"
+                z: 90  // Ensure background is below tabs but above other elements
                 
-                Rectangle {
-                        anchors.fill: parent
-                        color: "transparent"
-                        border.color: "transparent"
-                        border.width: 3
-                        antialiasing: false
+                // Border container
+                Item {
+                    anchors.fill: parent
+                    z: 95  // Make borders appear above background
 
-                            Rectangle {
-                                anchors.fill: parent
-                                color: "transparent"
-                                
-                                Rectangle {
-                                anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: 2
-                                color: "#f7f7f7"
-                                }
-                                
-                                Rectangle {
-                                anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.bottom: parent.bottom
-                                width: 2
-                                color: "#f7f7f7"
-                                }
-                                Rectangle {
-                                anchors.bottom: parent.bottom
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: 2
-                                color: "#2a2a2a"
-                                }
-                                Rectangle {
-                                anchors.top: parent.top
-                                anchors.right: parent.right
-                                anchors.bottom: parent.bottom
-                                width: 2
-                                color: "#2a2a2a"
-                                }
-                            }
-                        }
+                    // Top border
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 2
+                        color: "#f7f7f7"
+                        z: 96
+                    }
+                    
+                    // Left border
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.bottom: parent.bottom
+                        width: 2
+                        color: "#f7f7f7"
+                        z: 96
+                    }
+                    
+                    // Bottom border - make slightly thicker and ensure it's above other elements
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 2
+                        color: "#2a2a2a"
+                        z: 96
+                    }
+                    
+                    // Right border - make slightly thicker and ensure it's above other elements
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        width: 2
+                        color: "#2a2a2a"
+                        z: 96
+                    }
+                }
                 
-                
+                // Content container
                 ColumnLayout {
                     anchors.fill: parent
                     anchors.margins: Kirigami.Units.smallSpacing * 2
@@ -267,10 +277,12 @@ PlasmoidItem {
                             // Make any change to contentY instantaneous
                             Behavior on contentY { NumberAnimation { duration: 0 } }
                             
-                            delegate: Local.InventorySlot {
+                            delegate: InventorySlot {
                                 appName: modelData.name
                                 appIcon: modelData.icon
                                 appExec: modelData.desktop
+                                category: modelData.category || ""
+                                appComment: modelData.comment || ""
                                 isFavorite: root.isFavorite(modelData.desktop)
                                 isFavoriteRow: false
                                 onClicked: launchApp(appExec)
@@ -327,6 +339,8 @@ PlasmoidItem {
                                     appName: favoriteApp ? favoriteApp.name : ""
                                     appIcon: favoriteApp ? favoriteApp.icon : ""
                                     appExec: favoriteApp ? favoriteApp.desktop : ""
+                                    category: favoriteApp ? favoriteApp.category || "" : ""
+                                    appComment: favoriteApp ? favoriteApp.comment || "" : ""
                                     isFavorite: true
                                     isFavoriteRow: true
                                     onClicked: {
@@ -479,8 +493,11 @@ PlasmoidItem {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
+                // Make the bottom tabs overlap the background by adding top margin
+                anchors.topMargin: -2  // Negative margin creates overlap
                 height: Kirigami.Units.gridUnit * 3
                 spacing: Kirigami.Units.smallSpacing
+                z: 100  // Ensure tabs are above the background
                 
                 // Bottom categories
                 Repeater {
@@ -511,7 +528,7 @@ PlasmoidItem {
                                 anchors.left: parent.left
                                 anchors.right: parent.right
                                 height: 2
-                                color: "#c6c6c6"
+                                color: "transparent"
                                 }
                                 
                                 Rectangle {
@@ -679,10 +696,28 @@ PlasmoidItem {
         for (let source in appsSource.data) {
             let appData = appsSource.data[source]
             if ((appData.storageId || source) === desktopFile) {
+                // Determine category
+                let appCategory = "";
+                let categories = appData.categories || "";
+                let allCategories = topCategories.concat(bottomCategories);
+                
+                for (let i = 0; i < allCategories.length; i++) {
+                    let categoryObj = allCategories[i];
+                    for (let j = 0; j < categoryObj.matches.length; j++) {
+                        if (categories.indexOf(categoryObj.matches[j]) !== -1) {
+                            appCategory = categoryObj.id;
+                            break;
+                        }
+                    }
+                    if (appCategory) break;
+                }
+                
                 return {
                     name: appData.name || appData.genericName || source,
                     icon: appData.iconName || "application-x-executable",
-                    desktop: desktopFile
+                    desktop: desktopFile,
+                    category: appCategory,
+                    comment: appData.comment || ""
                 }
             }
         }
@@ -704,6 +739,27 @@ PlasmoidItem {
                 // Skip if we've already seen this desktop file or app name
                 if (seenDesktopFiles[desktopFile] || seenAppNames[displayName.toLowerCase()]) {
                     continue
+                }
+                
+                // Determine category
+                let appCategory = "";
+                if (currentCategory !== "All" && currentCategory !== "Favorites") {
+                    appCategory = currentCategory;
+                } else {
+                    // Try to determine category from app data
+                    let categories = appData.categories || "";
+                    let allCategories = topCategories.concat(bottomCategories);
+                    
+                    for (let i = 0; i < allCategories.length; i++) {
+                        let categoryObj = allCategories[i];
+                        for (let j = 0; j < categoryObj.matches.length; j++) {
+                            if (categories.indexOf(categoryObj.matches[j]) !== -1) {
+                                appCategory = categoryObj.id;
+                                break;
+                            }
+                        }
+                        if (appCategory) break;
+                    }
                 }
                 
                 let matchesCategory = false
@@ -744,7 +800,9 @@ PlasmoidItem {
                     apps.push({
                         name: displayName,
                         icon: appData.iconName || "application-x-executable",
-                        desktop: desktopFile
+                        desktop: desktopFile,
+                        category: appCategory,
+                        comment: appData.comment || ""
                     })
                     seenDesktopFiles[desktopFile] = true
                     seenAppNames[displayName.toLowerCase()] = true

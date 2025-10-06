@@ -13,7 +13,8 @@ Rectangle {
     signal clicked()
     
     color: isActive ? "#C6C6C6" : "#8B8B8B"
-    z: isActive ? 9999999 : 0
+    // Make active tabs appear above everything else
+    z: isActive ? 200 : 100
     
     Behavior on color {
         ColorAnimation { duration: 100 }
@@ -68,5 +69,7 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: tab.clicked()
+        onEntered: tab.hovered = true
+        onExited: tab.hovered = false
     }
 }
