@@ -6,8 +6,8 @@
   <kcfgfile name=""/>
 
   <group name="General">
-    <entry name="favoriteApps" type="String">
-      <default></default>
+    <entry name="launcherIcon" type="String">
+      <default>applications-all</default>
     </entry>
   </group>
 </kcfg>

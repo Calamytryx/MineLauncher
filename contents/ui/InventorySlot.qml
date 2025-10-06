@@ -11,6 +11,7 @@ Item {
     property string appExec: ""
     property bool hovered: false
     property bool isFavorite: false
+    property bool isFavoriteRow: false
     
     signal clicked()
     signal rightClicked()
@@ -22,39 +23,19 @@ Item {
     Rectangle {
         id: slotBg
         anchors.fill: parent
-        color: hovered ? "#A0A0A0" : "#8B8B8B"
-        border.color: "#C6C6C6"
-        border.width: 3
-        antialiasing: false // Disable antialiasing for crisp edges
+        color: "transparent"
         
         Behavior on color {
             ColorAnimation { duration: 100 }
         }
         
-        // Inner rectangle with only top and left borders
+        // Inner rectangle
         Rectangle {
             id: innerBorders
             anchors.fill: parent
             anchors.margins: 1  // Small margin to avoid overlap with parent border
-            color: "transparent"
+            color: "#8B8B8B"
             
-            // Top border
-            Rectangle {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: 2
-                color: "#2a2a2a"
-            }
-            
-            // Left border
-            Rectangle {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-                width: 2
-                color: "#2a2a2a"
-            }
         }
         // App icon
         Kirigami.Icon {
@@ -65,9 +46,9 @@ Item {
             smooth: true
         }
         
-        // Favorite star indicator
+        // Favorite star indicator (only show if not in favorite row)
         Text {
-            visible: isFavorite
+            visible: isFavorite && !isFavoriteRow
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.margins: Kirigami.Units.smallSpacing / 2
@@ -81,7 +62,7 @@ Item {
             id: tooltip
             visible: hovered && appName !== ""
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.top
+            anchors.bottom: parent.bottom
             anchors.bottomMargin: Kirigami.Units.smallSpacing
             width: tooltipText.width + Kirigami.Units.largeSpacing
             height: tooltipText.height + Kirigami.Units.smallSpacing
@@ -89,7 +70,7 @@ Item {
             border.color: "#2A2A2A"
             border.width: Kirigami.Units.devicePixelRatio
             radius: Kirigami.Units.smallSpacing / 2
-            z: 1000
+            z: 999999
             
             Rectangle {
                 anchors.fill: parent

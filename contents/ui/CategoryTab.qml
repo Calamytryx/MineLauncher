@@ -12,22 +12,11 @@ Rectangle {
     
     signal clicked()
     
-    color: isActive ? "#8B8B8B" : "#5B5B5B"
-    border.color: "#373737"
-    border.width: Kirigami.Units.devicePixelRatio * 2
+    color: isActive ? "#C6C6C6" : "#8B8B8B"
+    z: isActive ? 9999999 : 0
     
     Behavior on color {
         ColorAnimation { duration: 100 }
-    }
-    
-    // Inner highlight
-    Rectangle {
-        anchors.fill: parent
-        anchors.margins: Kirigami.Units.devicePixelRatio
-        color: "transparent"
-        border.color: isActive ? "#FFFFFF" : "#7B7B7B"
-        border.width: Kirigami.Units.devicePixelRatio
-        opacity: 0.5
     }
     
     // Icon
@@ -37,7 +26,7 @@ Rectangle {
         height: Kirigami.Units.iconSizes.medium
         source: categoryIcon
         smooth: true
-        color: "#FFFFFF"
+        color: "#000"
     }
     
     // Tooltip
@@ -78,19 +67,6 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        
-        onEntered: {
-            hovered = true
-            if (!isActive) {
-                tab.color = Qt.lighter(tab.color, 1.2)
-            }
-        }
-        onExited: {
-            hovered = false
-            if (!isActive) {
-                tab.color = "#5B5B5B"
-            }
-        }
         onClicked: tab.clicked()
     }
 }
