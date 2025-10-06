@@ -9,5 +9,8 @@
     <entry name="launcherIcon" type="String">
       <default>applications-all</default>
     </entry>
+    <entry name="alwaysExpanded" type="Bool">
+      <default>false</default>
+    </entry>
   </group>
 </kcfg>

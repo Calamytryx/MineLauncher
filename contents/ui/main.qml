@@ -19,7 +19,7 @@ PlasmoidItem {
     
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
     
-    preferredRepresentation: compactRepresentation
+    preferredRepresentation: (plasmoid.configuration.alwaysExpanded && plasmoid.formFactor == PlasmaCore.Types.Horizontal) ? fullRepresentation : compactRepresentation
     
     compactRepresentation: MouseArea {
         width: Kirigami.Units.gridUnit * 1.5
@@ -115,7 +115,7 @@ PlasmoidItem {
             }
         }
         
-        // Minecraft-style background (now smaller, containing only search, inventory, close)
+        // Minecraft-style background (now smaller, containing only search, inventory grid, favorite bar, and scrollbar)
         Rectangle {
             id: backgroundRect
             anchors.top: topCategoriesRow.bottom
@@ -177,6 +177,14 @@ PlasmoidItem {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
+
+                    Text {
+                        text: currentCategory
+                        font.pixelSize: searchField.height
+                        color: "#404040"
+                        verticalAlignment: Text.AlignVCenter
+                        Layout.alignment: Qt.AlignVCenter
+                    }
                     
                     Item { Layout.fillWidth: true }
                     
@@ -332,7 +340,7 @@ PlasmoidItem {
                     Rectangle {
                         id: scrollbarArea
                         width: inventoryContainer.scrollbarWidth
-                        height: parent.height - 8
+                        height: favoriteBar.height + gridView.height + ((gridView.height / 5) / 4 )
                         y: 4
                         anchors.right: parent.right
                         color: "#8b8b8b"
@@ -545,21 +553,21 @@ PlasmoidItem {
                             anchors.left: parent.left
                             anchors.bottom: parent.bottom
                             width: 2
-                            color: "#2a2a2a"
+                            color: "#f7f7f7"
                             }
                             Rectangle {
                             anchors.bottom: parent.bottom
                             anchors.left: parent.left
                             anchors.right: parent.right
                             height: 2
-                            color: "#f7f7f7"
+                            color: "#2a2a2a"
                             }
                             Rectangle {
                             anchors.top: parent.top
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
                             width: 2
-                            color: "#f7f7f7"
+                            color: "#2a2a2a"
                             }
                         }
                     }

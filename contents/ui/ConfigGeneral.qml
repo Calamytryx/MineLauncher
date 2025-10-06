@@ -17,6 +17,7 @@ KCM.SimpleKCM {
     id: configGeneral
 
     property string cfg_launcherIcon: Plasmoid.configuration.launcherIcon || "applications-all"
+    property alias cfg_alwaysExpanded: alwaysExpandedCheckBox.checked
 
     Kirigami.FormLayout {
         anchors.left: parent.left
@@ -47,6 +48,18 @@ KCM.SimpleKCM {
 
         Label {
             text: i18n("Choose an icon for the compact launcher representation.")
+            font.italic: true
+            wrapMode: Text.WordWrap
+        }
+
+        CheckBox {
+            id: alwaysExpandedCheckBox
+            Kirigami.FormData.label: i18n("Always Expanded:")
+            text: i18n("Show full menu directly in horizontal panels")
+        }
+
+        Label {
+            text: i18n("When enabled, the plasmoid will show the full menu in horizontal panels without requiring a click. In vertical panels, it remains compact.")
             font.italic: true
             wrapMode: Text.WordWrap
         }
