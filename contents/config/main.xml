@@ -6,11 +6,20 @@
   <kcfgfile name=""/>
 
   <group name="General">
+    <entry name="favoriteApps" type="String">
+      <default></default>
+    </entry>
     <entry name="launcherIcon" type="String">
-      <default>applications-all</default>
+      <default>start-here-kde</default>
+    </entry>
+    <entry name="launcherIconSize" type="Int">
+      <default>48</default>
     </entry>
     <entry name="alwaysExpanded" type="Bool">
       <default>false</default>
+    </entry>
+    <entry name="customAvatarUrl" type="String">
+      <default></default>
     </entry>
   </group>
 </kcfg>
