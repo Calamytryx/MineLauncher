@@ -11,8 +11,6 @@ Browse your applications with category tabs, a favorites bar, and authentic Mine
 
 ---
 
----
-
 ## 🔗 Also Try
 
 💡 If you like this Launcher, you might also enjoy:
