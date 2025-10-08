@@ -245,7 +245,7 @@ PlasmoidItem {
     width: Kirigami.Units.gridUnit * 1
     height: Kirigami.Units.gridUnit * 1
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
-    preferredRepresentation: (plasmoid.configuration.alwaysExpanded && plasmoid.formFactor == PlasmaCore.Types.Horizontal) ? fullRepresentation : compactRepresentation
+    preferredRepresentation: (plasmoid.configuration.alwaysExpanded) ? fullRepresentation : compactRepresentation
     // Load favorites from config
     Component.onCompleted: {
         let saved = plasmoid.configuration.favoriteApps || "";
