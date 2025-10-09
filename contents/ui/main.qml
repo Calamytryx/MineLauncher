@@ -82,11 +82,7 @@ PlasmoidItem {
             // Remove from favorites
             favoriteApps.splice(index, 1);
         } else {
-            // Add to favorites - but limit to 10
-            if (favoriteApps.length >= 10) {
-                console.log("Cannot add more than 10 favorites");
-                return;
-            }
+            // Add to favorites - no limit anymore
             favoriteApps.push(exec);
         }
         favoriteApps = favoriteApps; // Trigger property change
@@ -134,10 +130,8 @@ PlasmoidItem {
 
     function getFilteredApps() {
         let apps = [];
-        let seenDesktopFiles = {
-        };
-        let seenAppNames = {
-        };
+        let seenDesktopFiles = {};
+        let seenAppNames = {};
         // First pass - collect all apps that match our criteria
         for (let source in appsSource.data) {
             let appData = appsSource.data[source];
@@ -214,19 +208,20 @@ PlasmoidItem {
         apps.sort(function(a, b) {
             return a.name.localeCompare(b.name);
         });
-        // Make sure we have at least 50 items (5 rows × 10 columns)
+        
+        // Make sure we have at least 45 items (5 rows × 9 columns)
         // but don't limit maximum to allow scrolling when needed
-        while (apps.length < 50)
+        while (apps.length < 45)
             apps.push({
                 "name": "",
                 "icon": "",
                 "desktop": ""
             });
 
-        // Ensure apps.length is a multiple of 10 (for clean grid layout)
-        let remainder = apps.length % 10;
+        // Ensure apps.length is a multiple of 9 (for clean grid layout)
+        let remainder = apps.length % 9;
         if (remainder > 0) {
-            for (let i = 0; i < (10 - remainder); i++) {
+            for (let i = 0; i < (9 - remainder); i++) {
                 apps.push({
                     "name": "",
                     "icon": "",
@@ -245,7 +240,9 @@ PlasmoidItem {
     width: Kirigami.Units.gridUnit * 1
     height: Kirigami.Units.gridUnit * 1
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
+    
     preferredRepresentation: (plasmoid.configuration.alwaysExpanded) ? fullRepresentation : compactRepresentation
+
     // Load favorites from config
     Component.onCompleted: {
         let saved = plasmoid.configuration.favoriteApps || "";
@@ -304,9 +301,9 @@ PlasmoidItem {
     fullRepresentation: Item {
         id: fullRep
 
-        property int contentWidth: Kirigami.Units.gridUnit * 40
+        property int contentWidth: Kirigami.Units.gridUnit * 36
         property int contentHeight: Kirigami.Units.gridUnit * 35
-        property int minimumWidth: Kirigami.Units.gridUnit * 40
+        property int minimumWidth: Kirigami.Units.gridUnit * 36
         property int minimumHeight: Kirigami.Units.gridUnit * 35
 
         anchors.fill: parent
@@ -402,7 +399,7 @@ PlasmoidItem {
 
             }
 
-            // Minecraft-style background (now smaller, containing only search, inventory grid, favorite bar, and scrollbar)
+            // Minecraft-style background
             Rectangle {
                 id: backgroundRect
 
@@ -539,7 +536,8 @@ PlasmoidItem {
                         readonly property int gridAreaWidth: width - scrollbarWidth - separatorWidth
                         readonly property int favoriteBarHeight: Kirigami.Units.gridUnit * 3.5
                         readonly property int mainGridHeight: Kirigami.Units.gridUnit * 3.5 * 5
-                        readonly property int userBarHeight: Kirigami.Units.gridUnit * 2.5 // New property
+                        readonly property int userBarHeight: Kirigami.Units.gridUnit * 2.5
+                        readonly property int itemsPerFavoritePage: 9 // Display 9 favorites per page
 
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -558,11 +556,11 @@ PlasmoidItem {
                         GridView {
                             id: gridView
 
-                            // Force 10 columns
-                            property int columns: 10
+                            // Force 9 columns
+                            property int columns: 9
 
                             width: inventoryContainer.gridAreaWidth
-                            height: inventoryContainer.mainGridHeight // Force exact height - NO bottom anchor
+                            height: inventoryContainer.mainGridHeight
                             anchors.left: parent.left
                             anchors.top: parent.top
                             anchors.margins: Kirigami.Units.smallSpacing
@@ -619,7 +617,7 @@ PlasmoidItem {
                         Rectangle {
                             id: userBar
 
-                            width: Kirigami.Units.gridUnit * 3.5 * 10 // Exactly 10 inventory slots width
+                            width: Kirigami.Units.gridUnit * 3.5 * 9 // Exactly 9 inventory slots width
                             height: inventoryContainer.userBarHeight
                             anchors.left: parent.left
                             anchors.top: gridView.bottom
@@ -998,57 +996,56 @@ PlasmoidItem {
 
                         }
 
-                        // Static favorite grid background
-                        StaticFavoriteGrid {
-                            id: staticFavoriteGrid
-
-                            width: inventoryContainer.gridAreaWidth
-                            height: inventoryContainer.favoriteBarHeight
-                            anchors.left: parent.left
-                            anchors.top: userBar.bottom
-                            anchors.leftMargin: Kirigami.Units.smallSpacing
-                            anchors.topMargin: Kirigami.Units.smallSpacing // Add spacing between userBar and favorites
-                        }
-
                         // Favorite app bar
-                        Grid {
-                            id: favoriteBar
-
+                        Item {
+                            id: favoriteContainer
                             width: inventoryContainer.gridAreaWidth
                             height: inventoryContainer.favoriteBarHeight
                             anchors.left: parent.left
                             anchors.top: userBar.bottom
                             anchors.leftMargin: Kirigami.Units.smallSpacing
-                            anchors.topMargin: Kirigami.Units.smallSpacing // Add spacing between userBar and favorites
-                            columns: 10
+                            anchors.topMargin: Kirigami.Units.smallSpacing
 
-                            Repeater {
-                                model: 10
-
-                                Local.InventorySlot {
-                                    property var favoriteApp: index < favoriteApps.length ? getFavoriteAppData(favoriteApps[index]) : null
-
-                                    appName: favoriteApp ? favoriteApp.name : ""
-                                    appIcon: favoriteApp ? favoriteApp.icon : ""
-                                    appExec: favoriteApp ? favoriteApp.desktop : ""
-                                    category: favoriteApp ? favoriteApp.category || "" : ""
-                                    appComment: favoriteApp ? favoriteApp.comment || "" : ""
-                                    isFavorite: true
-                                    isFavoriteRow: true
-                                    onClicked: {
-                                        if (appExec)
-                                            launchApp(appExec);
-
-                                    }
-                                    onRightClicked: {
-                                        if (appExec)
-                                            root.toggleFavorite(appExec);
-
-                                    }
-                                }
-
+                            // Static favorite grid background
+                            StaticFavoriteGrid {
+                                id: staticFavoriteGrid
+                                anchors.fill: parent
                             }
 
+                            // Favorite app slots - simplified to show first 9 favorites
+                            Grid {
+                                id: favoriteBar
+                                width: parent.width
+                                height: parent.height
+                                anchors.centerIn: parent
+                                columns: 9
+                                
+                                Repeater {
+                                    model: 9 // Always show 9 slots
+                                    
+                                    Local.InventorySlot {
+                                        property int favoriteIndex: index
+                                        property var favoriteApp: favoriteIndex < favoriteApps.length ? 
+                                                                getFavoriteAppData(favoriteApps[favoriteIndex]) : null
+                                        
+                                        appName: favoriteApp ? favoriteApp.name : ""
+                                        appIcon: favoriteApp ? favoriteApp.icon : ""
+                                        appExec: favoriteApp ? favoriteApp.desktop : ""
+                                        category: favoriteApp ? favoriteApp.category || "" : ""
+                                        appComment: favoriteApp ? favoriteApp.comment || "" : ""
+                                        isFavorite: favoriteApp !== null
+                                        isFavoriteRow: true
+                                        onClicked: {
+                                            if (appExec)
+                                                launchApp(appExec);
+                                        }
+                                        onRightClicked: {
+                                            if (appExec)
+                                                root.toggleFavorite(appExec);
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         // Separator wall

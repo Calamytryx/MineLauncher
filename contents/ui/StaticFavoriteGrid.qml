@@ -7,7 +7,7 @@ Grid {
     property int cellWidth: Kirigami.Units.gridUnit * 3.5
     property int cellHeight: Kirigami.Units.gridUnit * 3.5
 
-    readonly property int numCols: 10 // Force 10 columns
+    readonly property int numCols: 9 // Force 9 columns
     readonly property int numRows: 1 // Force 1 row
     readonly property int totalCells: numCols * numRows
 
