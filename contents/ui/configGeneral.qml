@@ -100,7 +100,7 @@ Item {
         }
 
         Label {
-            text: "Note: Favorites are limited to 10 items maximum"
+            text: "Note: Favorites are limited to 9 items maximum"
             font.pointSize: Kirigami.Theme.smallFont.pointSize
             opacity: 0.7
             Layout.fillWidth: true

@@ -20,15 +20,15 @@ Browse your applications with category tabs, a favorites bar, and authentic Mine
 
 ## 🧩 Features
 
-✅ **Grid-based launcher UI** — 10×5 scrollable app grid with Minecraft-style borders  
+✅ **Grid-based launcher UI** — 9×5 scrollable app grid with Minecraft-style borders  
 ✅ **Category tabs** — Top and bottom tabs (like Minecraft's Creative tabs)  
-✅ **Favorites bar** — Pin up to 10 favorite apps for quick access  
+✅ **Favorites bar** — Pin up to 9 visible favorite apps for quick access (additional favorites are stored but only the first 9 are shown in the bar)  
 ✅ **Search functionality** — Real-time app filtering  
 ✅ **User profile bar** — Display username with Minecraft avatar support  
 ✅ **Power controls** — Lock, logout, reboot, and shutdown buttons  
 ✅ **Custom scrollbar** — Minecraft-style scrollbar with row snapping  
 ✅ **Color-coded categories** — Apps display category colors in tooltips  
-✅ **Configurable** — Custom launcher icon, size, and avatar URL  
+✅ **Configurable** — Custom launcher icon, size, avatar URL, and always expanded option  
 ✅ Built in pure **QML + JS** for Plasma 6  
 
 ---
@@ -36,35 +36,47 @@ Browse your applications with category tabs, a favorites bar, and authentic Mine
 ## 📂 Folder structure
 
 ```
-mc_inventory/
+mc_inventory
 ├── contents
-│   ├── config
-│   │   ├── main.xml
-│   │   └── config.qml
-│   └── ui
-│       ├── CategoryTab.qml
-│       ├── configGeneral.qml
-│       ├── InventorySlot.qml
-│       ├── main.qml
-│       ├── StaticFavoriteGrid.qml
-│       └── StaticGrid.qml
+│   ├── config
+│   │   ├── config.qml
+│   │   └── main.xml
+│   ├── ui
+│   │   ├── CategoryTab.qml
+│   │   ├── CompactRepresentation.qml
+│   │   ├── configGeneral.qml
+│   │   ├── DashboardRepresentation.qml
+│   │   ├── InventorySlot.qml
+│   │   ├── main.qml
+│   │   ├── StaticFavoriteGrid.qml
+│   │   └── StaticGrid.qml
+│   ├── minecraft-items
+│   │   └── {images}
+│   └── textures  
+│      └── {images}
 ├── grass_block.png
-├── metadata.json
-├── preview.png
-├── preview2.png
 ├── LICENSE
+├── metadata.json
+├── preview2.png
+├── preview3.png
+├── preview.png
 └── README.md
+
 ```
 
 **Component descriptions:**
-- `main.qml` — Main UI entry point with grid layout and category logic
-- `InventorySlot.qml` — Individual grid cell with app icon and tooltip
-- `CategoryTab.qml` — Category navigation tabs
-- `StaticGrid.qml` — Background grid borders for main inventory
-- `StaticFavoriteGrid.qml` — Background borders for favorites bar
-- `configGeneral.qml` — Configuration dialog
-- `grass_block.png` — Default widget icon
-- `metadata.json` — Plasma package metadata
+- `main.qml` — Root UI file; manages app grid, category switching, and main logic
+- `InventorySlot.qml` — Represents a single app slot with icon, tooltip, and click handling
+- `CategoryTab.qml` — Renders a category tab (top/bottom) with icon and selection state
+- `StaticGrid.qml` — Draws Minecraft-style borders/background for the main app grid
+- `StaticFavoriteGrid.qml` — Draws borders/background for the favorites bar
+- `configGeneral.qml` — Implements the widget's configuration dialog UI
+- `CompactRepresentation.qml` — Handles panel/compact widget mode
+- `DashboardRepresentation.qml` — Handles dashboard/expanded widget mode
+- `grass_block.png` — Default launcher icon (Minecraft grass block)
+- `metadata.json` — Plasma package metadata and manifest
+- `minecraft-items/` — Minecraft assets 
+- `textures/` — Minecraft assets 
 
 ---
 
@@ -114,8 +126,8 @@ kpackagetool6 -t Plasma/Applet -u mc_inventory
 
 ### Favorites Bar
 - Right-click any app to add it to favorites
-- Maximum of 10 favorite apps
-- Favorites appear at the bottom of the inventory
+- Favorites are stored without an enforced limit; however, the in-widget favorites bar shows up to 9 pinned apps (extra favorites remain saved but are not displayed in the 9-slot bar)
+- Favorites appear at the bottom of the inventory (first 9 entries)
 - Right-click favorites to remove them
 
 ### Power Controls
@@ -150,6 +162,14 @@ Right-click the widget → **Configure MC Inventory...**
 - Keep the launcher always visible (useful for desktop widgets)
 - Default: Off (click to expand)
 
+        Label {
+            text: "Note: Favorites bar displays up to 9 items; additional favorites are stored but only the first 9 are shown in the bar"
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            opacity: 0.7
+            Layout.fillWidth: true
+            wrapMode: Text.Wrap
+        }
+
 ---
 
 ## 💻 Manual Uninstall
@@ -176,7 +196,7 @@ kstart plasmashell
 The plasmoid is now **functionally complete** with all major features implemented:
 - ✅ Full category system
 - ✅ Search functionality
-- ✅ Favorites management (limited to 10)
+- ✅ Favorites management (favorites are saved without an enforced limit; the favorites bar displays up to 9 visible slots)
 - ✅ Custom scrollbar with row snapping
 - ✅ User profile display with avatar
 - ✅ Power controls
@@ -184,9 +204,10 @@ The plasmoid is now **functionally complete** with all major features implemente
 - ✅ Color-coded tooltips
 
 ### Known Limitations
-- Favorites limited to 10 items (by design, matching Minecraft hotbar)
+- Favorites are stored with no hard cap, but only the first 9 favorites are visible in the in-widget favorites bar (this matches the 9-slot/hotbar visual design)
 - Some KDE themes may affect border appearance
 - Avatar images require internet connection (mc-heads.net)
+- Avatar images may be overridden by a custom URL in the config
 
 ### Tips for contributors
 
@@ -279,7 +300,7 @@ See [LICENSE](LICENSE) for full text.
 ## 📸 Screenshots
 
 The launcher features:
-- **10×5 scrollable grid** with Minecraft-style borders
+- **9×5 scrollable grid** with Minecraft-style borders
 - **Category tabs** at top and bottom
 - **Search bar** with real-time filtering
 - **Favorites bar** with up to 10 pinned apps
