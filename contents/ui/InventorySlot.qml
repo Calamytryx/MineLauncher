@@ -160,7 +160,7 @@ Item {
         onExited: hovered = false
         
         // Track cursor position
-        onPositionChanged: {
+        onPositionChanged: function(mouse) {
             if (hovered) {
                 // Convert local mouse position to global window coordinates
                 let globalPos = mapToItem(slot.Window.window ? slot.Window.window.contentItem : slot, mouse.x, mouse.y)

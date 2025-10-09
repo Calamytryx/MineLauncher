@@ -9,14 +9,14 @@ Item {
     id: root
     
     // Configuration properties
-    property string cfg_launcherIcon: "start-here-kde"
+    property string cfg_launcherIcon: Qt.resolvedUrl("../minecraft-items/grass_block.png")
     property int cfg_launcherIconSize: 48
     property bool cfg_alwaysExpanded: false
     property string cfg_customAvatarUrl: ""
     
     // Initialize from current configuration
     Component.onCompleted: {
-        iconButton.iconSource = plasmoid.configuration.launcherIcon || "start-here-kde"
+        iconButton.iconSource = plasmoid.configuration.launcherIcon || Qt.resolvedUrl("../minecraft-items/grass_block.png")
         iconSizeSpinBox.value = plasmoid.configuration.launcherIconSize || 48
         alwaysExpandedCheck.checked = plasmoid.configuration.alwaysExpanded || false
         customAvatarField.text = plasmoid.configuration.customAvatarUrl || ""
@@ -36,7 +36,7 @@ Item {
         Button {
             id: iconButton
             
-            property string iconSource: "start-here-kde"
+            property string iconSource: Qt.resolvedUrl("../minecraft-items/grass_block.png")
             
             Kirigami.FormData.label: "Launcher Icon:"
             icon.name: iconSource
