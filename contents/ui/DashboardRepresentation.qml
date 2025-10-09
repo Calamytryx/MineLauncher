@@ -50,8 +50,19 @@ Kicker.DashboardWindow {
 
         anchors.fill: parent
 
+        // --- Add this MouseArea for outside click-to-close ---
+        MouseArea {
+            anchors.fill: parent
+            z: 0
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            propagateComposedEvents: true
+            onClicked: root.toggle()
+        }
+        // --- End addition ---
+
         Item {
             id: mainContainer
+            z: 1
 
             // Make the container responsive to screen size
             width: Math.min(parent.width * 0.9, Kirigami.Units.gridUnit * 36)
@@ -535,11 +546,10 @@ Kicker.DashboardWindow {
 
                                         MouseArea {
                                             id: lockMouseArea
-
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: kicker.executable2.connectSource("loginctl lock-session")
+                                            onClicked: executable2.connectSource("loginctl lock-session")
                                         }
                                     }
 
@@ -595,11 +605,10 @@ Kicker.DashboardWindow {
 
                                         MouseArea {
                                             id: logoutMouseArea
-
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: kicker.executable2.connectSource("qdbus org.kde.ksmserver /KSMServer logout 0 0 0")
+                                            onClicked: Qt.openUrlExternally("qdbus org.kde.Shutdown /Shutdown logout")
                                         }
                                     }
 
@@ -656,11 +665,10 @@ Kicker.DashboardWindow {
 
                                         MouseArea {
                                             id: rebootMouseArea
-
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: kicker.executable2.connectSource("systemctl reboot")
+                                            onClicked: executable2.connectSource("systemctl reboot")
                                         }
                                     }
 
@@ -717,11 +725,10 @@ Kicker.DashboardWindow {
 
                                         MouseArea {
                                             id: shutdownMouseArea
-
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: kicker.executable2.connectSource("systemctl poweroff")
+                                            onClicked: executable2.connectSource("systemctl poweroff")
                                         }
                                     }
                                 }
