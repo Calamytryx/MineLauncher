@@ -797,12 +797,10 @@ Kicker.DashboardWindow {
                             id: scrollbarArea
 
                             width: inventoryContainer.scrollbarWidth
-                            height: favoriteBar.height + gridView.height + ((gridView.height / 5) / 4 )
                             anchors.right: parent.right
                             anchors.top: parent.top
-                            anchors.bottom: parent.bottom
+                            anchors.bottom: favoriteContainer.bottom
                             anchors.topMargin: Kirigami.Units.smallSpacing
-                            anchors.bottomMargin: Kirigami.Units.smallSpacing
                             color: "#8b8b8b"
 
                             Rectangle {
@@ -842,18 +840,49 @@ Kicker.DashboardWindow {
 
                                 width: parent.width * 0.92
                                 height: Kirigami.Units.gridUnit * 3.5
-                                color: "#5B5B5B"
+                                color: "#838383"
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 // Calculate Y position based on GridView's scroll with snapping
                                 y: {
                                     let scrollableHeight = Math.max(1, gridView.contentHeight - gridView.height);
-                                    let handleScrollableHeight = Math.max(1, scrollbarArea.height - height);
+                                    let handleScrollableHeight = Math.max(1, scrollbarArea.height - height - 2 - 2); // Subtract 2 from top and 2 from bottom
                                     // Make sure position aligns with rows
                                     let rowPosition = Math.round(gridView.contentY / gridView.cellHeight);
                                     let snappedContentY = rowPosition * gridView.cellHeight;
-                                    return Math.min(handleScrollableHeight, (snappedContentY / scrollableHeight) * handleScrollableHeight);
+                                    // Offset by 2 on top, -2 on bottom
+                                    return 2 + Math.min(handleScrollableHeight, (snappedContentY / scrollableHeight) * handleScrollableHeight);
                                 }
 
+                                
+                                // Draw 6 horizontal lines, spaced evenly, using a Repeater
+                                Repeater {
+                                    model: 7
+                                    Rectangle {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        width: parent.width * 0.75
+                                        height: parent.height * (1/7)
+                                        y: parent.height * (1/7) * index
+                                        color: "transparent"
+                                        // Top line for all but the first
+                                        Rectangle {
+                                            anchors.left: parent.left
+                                            anchors.right: parent.right
+                                            anchors.top: parent.top
+                                            height: 2
+                                            color: "#505050"
+                                            visible: index !== 0
+                                        }
+                                        // Bottom line for all but the last
+                                        Rectangle {
+                                            anchors.left: parent.left
+                                            anchors.right: parent.right
+                                            anchors.bottom: parent.bottom
+                                            height: 2
+                                            color: "#505050"
+                                            visible: index !== (7)
+                                        }
+                                    }
+                                }
                                 Rectangle {
                                     anchors.top: parent.top
                                     anchors.left: parent.left
@@ -893,8 +922,8 @@ Kicker.DashboardWindow {
                                     anchors.fill: parent
                                     drag.target: parent
                                     drag.axis: Drag.YAxis
-                                    drag.minimumY: 0
-                                    drag.maximumY: scrollbarArea.height - parent.height
+                                    drag.minimumY: 2
+                                    drag.maximumY: (scrollbarArea.height - parent.height) -2
                                     onPressed: isDragging = true
                                     onReleased: isDragging = false
                                     // Handle drag movement with row snapping
