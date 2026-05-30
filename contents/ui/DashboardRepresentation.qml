@@ -608,7 +608,7 @@ Kicker.DashboardWindow {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: Qt.openUrlExternally("qdbus org.kde.Shutdown /Shutdown logout")
+                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptLogout")
                                         }
                                     }
 
@@ -668,7 +668,7 @@ Kicker.DashboardWindow {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: executable2.connectSource("systemctl reboot")
+                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptReboot")
                                         }
                                     }
 
@@ -728,7 +728,7 @@ Kicker.DashboardWindow {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: executable2.connectSource("systemctl poweroff")
+                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptShutdown")
                                         }
                                     }
                                 }
