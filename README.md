@@ -1,311 +1,222 @@
-# 🟩 MineLauncher — Minecraft-Style KDE Plasma App Launcher
+# MineLauncher
 
-**MineLauncher** (package ID: `mc_inventory`) is a KDE Plasma 6 plasmoid that transforms your desktop app launcher into a **Minecraft Creative Inventory**–inspired grid.  
-Browse your applications with category tabs, a favorites bar, and authentic Minecraft-style UI elements. 🧱
+MineLauncher is a KDE Plasma 6 application launcher styled after the Minecraft
+Creative Inventory. Applications are shown in a fixed nine-column grid with
+Minecraft-style borders, category tabs along the top and bottom, a favorites
+bar, a search field, a user bar, and session power controls.
 
----
+The package identifier is `mc_inventory` and the display name is "MC Inventory".
 
-![MineLauncher Preview](preview.png)
-![MineLauncher Preview New](preview2.png)
-![MineLauncher Preview Current](preview3.png)
+![Preview](preview.png)
+![Preview](preview2.png)
+![Preview](preview3.png)
 
----
+## Requirements
 
-## 🔗 Also Try
+- KDE Plasma 6 (the package sets `X-Plasma-API-Minimum-Version` to 6.0)
+- Qt 6
+- Standard Plasma command-line tools, used at runtime: `kstart`, `qdbus`,
+  `loginctl`
+- An internet connection if you use the default mc-heads.net avatar
 
-💡 If you like this Launcher, you might also enjoy:
-[**MineClock on GitHub**](https://github.com/Calamytryx/MineClock) — another Minecraft-style plasmoid with similar fun vibes!
+## Features
 
----
+- Nine-column application grid, five rows visible, scrollable for the rest.
+- Category tabs. Top: All, Favorites, System, Utilities. Bottom: Games,
+  Graphics, Internet, Multimedia, Office, Development.
+- Favorites bar with nine slots below the grid.
+- Real-time search that filters the grid by application name.
+- User bar showing the current username and a Minecraft-style avatar.
+- Session controls: lock, logout, reboot, shutdown.
+- Custom scrollbar that snaps to grid rows.
+- Configurable launcher icon, icon size, and avatar source.
 
-## 🧩 Features
+## Installation
 
-✅ **Grid-based launcher UI** — 9×5 scrollable app grid with Minecraft-style borders  
-✅ **Category tabs** — Top and bottom tabs (like Minecraft's Creative tabs)  
-✅ **Favorites bar** — Pin up to 9 visible favorite apps for quick access (additional favorites are stored but only the first 9 are shown in the bar)  
-✅ **Search functionality** — Real-time app filtering  
-✅ **User profile bar** — Display username with Minecraft avatar support  
-✅ **Power controls** — Lock, logout, reboot, and shutdown buttons  
-✅ **Custom scrollbar** — Minecraft-style scrollbar with row snapping  
-✅ **Color-coded categories** — Apps display category colors in tooltips  
-✅ **Configurable** — Custom launcher icon, size, avatar URL, and always expanded option  
-✅ Built in pure **QML + JS** for Plasma 6  
+### Local install
 
----
+```bash
+mkdir -p ~/.local/share/plasma/plasmoids/
+cp -r mc_inventory ~/.local/share/plasma/plasmoids/
+```
 
-## 📂 Folder structure
+Then right-click the desktop or a panel, choose Add Widgets, and search for
+"MC Inventory".
+
+If the widget does not appear, refresh the package cache and restart Plasma:
+
+```bash
+kbuildsycoca6 --noincremental
+kquitapp6 plasmashell
+kstart plasmashell
+```
+
+### Package install
+
+Run these from the directory that contains the `mc_inventory` folder:
+
+```bash
+# Install
+kpackagetool6 -t Plasma/Applet -i mc_inventory
+
+# Update an existing installation
+kpackagetool6 -t Plasma/Applet -u mc_inventory
+```
+
+The installed folder name must match the `Id` field in `metadata.json`
+(`mc_inventory`). Plasma resolves the widget by that identifier, so a
+mismatched folder name will fail to load.
+
+## Usage
+
+### Interactions
+
+- Left-click an application to launch it.
+- Right-click an application to add or remove it from favorites.
+- Scroll with the mouse wheel to move through the grid; scrolling snaps to
+  whole rows.
+- Type in the search field to filter applications by name.
+
+### Categories
+
+The current category name is shown above the grid. Selecting a tab filters the
+grid to applications whose desktop-entry categories match that tab. "All" shows
+everything; "Favorites" shows pinned applications.
+
+### Favorites
+
+- Right-click an application in the grid to pin it.
+- The favorites bar shows up to nine pinned applications.
+- Favorites are stored in the widget configuration as a comma-separated list;
+  if more than nine are saved, only the first nine appear in the bar.
+- Right-click an entry in the favorites bar to unpin it.
+
+### Application launching
+
+Applications are launched with `kstart --application <name>`. This resolves the
+desktop entry through the same KService database that the menu is built from
+and honours `Exec` field codes, terminal applications, D-Bus activation, and
+startup notification.
+
+### Session controls
+
+The buttons are in the user bar, below the grid:
+
+| Button   | Action                                                              |
+|----------|---------------------------------------------------------------------|
+| Lock     | Locks the session (`loginctl lock-session`). No confirmation.       |
+| Logout   | Opens the KDE logout confirmation screen (`org.kde.LogoutPrompt`).  |
+| Reboot   | Opens the KDE restart confirmation screen.                          |
+| Shutdown | Opens the KDE shutdown confirmation screen.                         |
+
+Logout, reboot, and shutdown go through `org.kde.LogoutPrompt`, so they show
+the standard KDE confirmation dialog rather than acting immediately.
+
+## Configuration
+
+Right-click the widget and choose Configure to open the General settings page.
+
+| Setting           | Description                                              | Default         |
+|-------------------|----------------------------------------------------------|-----------------|
+| Launcher Icon     | Icon shown for the widget in the panel or on the desktop | `start-here-kde`|
+| Icon Size         | Launcher icon size in pixels (range 16-256)              | 48              |
+| Custom Avatar URL | Image URL for the user bar avatar                        | empty           |
+| Always Expanded   | Keep the launcher visible instead of click-to-expand     | off             |
+
+When Custom Avatar URL is empty, the avatar is fetched from
+`https://mc-heads.net/avatar/<username>/100.png`, where `<username>` comes from
+`whoami`. Providing a URL overrides this.
+
+## Project structure
 
 ```
 mc_inventory
 ├── contents
-│   ├── config
-│   │   ├── config.qml
-│   │   └── main.xml
-│   ├── ui
-│   │   ├── CategoryTab.qml
-│   │   ├── CompactRepresentation.qml
-│   │   ├── configGeneral.qml
-│   │   ├── DashboardRepresentation.qml
-│   │   ├── InventorySlot.qml
-│   │   ├── main.qml
-│   │   ├── StaticFavoriteGrid.qml
-│   │   └── StaticGrid.qml
+│   ├── config
+│   │   ├── config.qml
+│   │   └── main.xml
+│   ├── ui
+│   │   ├── CategoryTab.qml
+│   │   ├── CompactRepresentation.qml
+│   │   ├── DashboardRepresentation.qml
+│   │   ├── InventorySlot.qml
+│   │   ├── StaticFavoriteGrid.qml
+│   │   ├── StaticGrid.qml
+│   │   ├── configGeneral.qml
+│   │   └── main.qml
 │   ├── minecraft-items
-│   │   └── {images}
-│   └── textures  
-│      └── {images}
+│   └── textures
 ├── grass_block.png
-├── LICENSE
 ├── metadata.json
+├── preview.png
 ├── preview2.png
 ├── preview3.png
-├── preview.png
-└── README.md
-
+└── LICENSE
 ```
 
-**Component descriptions:**
-- `main.qml` — Root UI file; manages app grid, category switching, and main logic
-- `InventorySlot.qml` — Represents a single app slot with icon, tooltip, and click handling
-- `CategoryTab.qml` — Renders a category tab (top/bottom) with icon and selection state
-- `StaticGrid.qml` — Draws Minecraft-style borders/background for the main app grid
-- `StaticFavoriteGrid.qml` — Draws borders/background for the favorites bar
-- `configGeneral.qml` — Implements the widget's configuration dialog UI
-- `CompactRepresentation.qml` — Handles panel/compact widget mode
-- `DashboardRepresentation.qml` — Handles dashboard/expanded widget mode
-- `grass_block.png` — Default launcher icon (Minecraft grass block)
-- `metadata.json` — Plasma package metadata and manifest
-- `minecraft-items/` — Minecraft assets 
-- `textures/` — Minecraft assets 
+| File                          | Purpose                                                        |
+|-------------------------------|----------------------------------------------------------------|
+| `main.qml`                    | Root item; app data model, category and search logic, launch.  |
+| `CompactRepresentation.qml`   | Panel/compact button that opens the launcher.                  |
+| `DashboardRepresentation.qml` | Full launcher window: grid, tabs, search, user bar, controls.  |
+| `InventorySlot.qml`           | A single app slot with icon, tooltip, and click handling.      |
+| `CategoryTab.qml`             | A category tab with icon and selected state.                   |
+| `StaticGrid.qml`              | Border and background for the main grid.                       |
+| `StaticFavoriteGrid.qml`      | Border and background for the favorites bar.                   |
+| `configGeneral.qml`           | The configuration dialog UI.                                   |
+| `config/main.xml`             | Configuration keys and defaults.                               |
+| `config/config.qml`           | Registers the General settings page.                           |
+| `metadata.json`               | Plasma package manifest.                                       |
+| `minecraft-items/`, `textures/` | Image assets.                                                |
 
----
+## Development
 
-## ⚙️ Installation
-
-### Local Install (Recommended for testing)
-```bash
-# Create the plasmoids folder if it doesn't exist
-mkdir -p ~/.local/share/plasma/plasmoids/
-
-# Copy this project there
-cp -r mc_inventory ~/.local/share/plasma/plasmoids/
-```
-
-Then right-click desktop → **Add Widgets** → search for "MC Inventory".
-
-If it doesn't appear:
+Restart Plasma after changing QML:
 
 ```bash
-kbuildsycoca6 --noincremental
-killall plasmashell
+kquitapp6 plasmashell
 kstart plasmashell
 ```
 
-### Package Install
-```bash
-# From the parent directory containing mc_inventory/
-kpackagetool6 -t Plasma/Applet -i mc_inventory
+Watch the log output while testing:
 
-# To update an existing installation
-kpackagetool6 -t Plasma/Applet -u mc_inventory
+```bash
+journalctl --user -f | grep plasmashell
 ```
 
----
+Notes:
 
-## 🎮 Usage
+- Keep the `Id` in `metadata.json` equal to the installed folder name.
+- Use Qt 6 and Plasma 6 APIs only.
 
-### Categories
-- **Top tabs:** All, Favorites, System, Utilities
-- **Bottom tabs:** Games, Graphics, Internet, Multimedia, Office, Development
-
-### Interactions
-- **Left-click** — Launch application
-- **Right-click** — Add/remove from favorites
-- **Mouse wheel** — Scroll through apps (snaps to rows)
-- **Search field** — Filter apps by name
-
-### Favorites Bar
-- Right-click any app to add it to favorites
-- Favorites are stored without an enforced limit; however, the in-widget favorites bar shows up to 9 pinned apps (extra favorites remain saved but are not displayed in the 9-slot bar)
-- Favorites appear at the bottom of the inventory (first 9 entries)
-- Right-click favorites to remove them
-
-### Power Controls
-Located in the user bar below the main grid:
-- 🔒 **Lock** — Lock screen session
-- 🚪 **Logout** — End current session
-- 🔄 **Reboot** — Restart system
-- ⚡ **Shutdown** — Power off system
-
----
-
-## ⚙️ Configuration
-
-Right-click the widget → **Configure MC Inventory...**
-
-### General Settings
-
-**Launcher Icon:**
-- Choose any system icon for the panel/desktop
-- Default: `start-here-kde`
-
-**Icon Size:**
-- Range: 16-256 pixels
-- Default: 48px
-
-**Custom Avatar URL:**
-- Leave empty to use `mc-heads.net/avatar/{username}`
-- Or provide a custom URL to any image
-- Example: `https://mc-heads.net/avatar/Steve/100.png`
-
-**Always Expanded:**
-- Keep the launcher always visible (useful for desktop widgets)
-- Default: Off (click to expand)
-
-        Label {
-            text: "Note: Favorites bar displays up to 9 items; additional favorites are stored but only the first 9 are shown in the bar"
-            font.pointSize: Kirigami.Theme.smallFont.pointSize
-            opacity: 0.7
-            Layout.fillWidth: true
-            wrapMode: Text.Wrap
-        }
-
----
-
-## 💻 Manual Uninstall
+## Uninstall
 
 ```bash
-# Remove the plasmoid directory
+# If installed by copying
 rm -rf ~/.local/share/plasma/plasmoids/mc_inventory/
 
-# Or use kpackagetool6
+# If installed with kpackagetool6
 kpackagetool6 -t Plasma/Applet -r mc_inventory
 ```
 
 Then restart Plasma:
+
 ```bash
-killall plasmashell
+kquitapp6 plasmashell
 kstart plasmashell
 ```
 
----
+## License
 
-## 🧠 Development Notes
+`metadata.json` declares the license as `GPL-2.0+` and the QML source headers
+use `GPL-2.0-or-later`. The bundled `LICENSE` file contains the GNU General
+Public License, version 3. See [LICENSE](LICENSE) for the full text.
 
-### Current Status
-The plasmoid is now **functionally complete** with all major features implemented:
-- ✅ Full category system
-- ✅ Search functionality
-- ✅ Favorites management (favorites are saved without an enforced limit; the favorites bar displays up to 9 visible slots)
-- ✅ Custom scrollbar with row snapping
-- ✅ User profile display with avatar
-- ✅ Power controls
-- ✅ Configuration dialog
-- ✅ Color-coded tooltips
+Copyright (C) 2025 CAL.
 
-### Known Limitations
-- Favorites are stored with no hard cap, but only the first 9 favorites are visible in the in-widget favorites bar (this matches the 9-slot/hotbar visual design)
-- Some KDE themes may affect border appearance
-- Avatar images require internet connection (mc-heads.net)
-- Avatar images may be overridden by a custom URL in the config
+## Credits
 
-### Tips for contributors
-
-* Always keep `"Id": "mc_inventory"` in `metadata.json` matching the folder name
-* `Name` ("MC Inventory") is just the visible label
-* Check logs with `journalctl --user -f | grep plasmashell`
-* Test in a sandbox session (Xephyr) for major changes
-* Use Qt 6 / Plasma 6 APIs only
-
-### Development Tools
-```bash
-# Watch logs
-journalctl --user -f | grep plasmashell
-
-# Restart Plasma after changes
-killall plasmashell && kstart plasmashell
-
-# Test in Xephyr
-Xephyr :1 -screen 1920x1080 &
-DISPLAY=:1 plasmashell --replace
-```
-
----
-
-## 🤝 Contributing
-
-Got QML experience? Plasma dev skills?  
-Contributions are welcome!
-
-**Areas for improvement:**
-- Additional category icons/themes
-- Animation polish
-- Performance optimization
-- Accessibility features
-- Theme customization options
-
-**How to contribute:**
-1. Fork this repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request 🚀
-
----
-
-## 🧱 Future Plans
-
-- [ ] Animation effects (fade in/out, slide transitions)
-- [ ] Custom category creation
-- [ ] Theme variants (dark mode, different Minecraft versions)
-- [ ] Drag-and-drop app organization
-- [ ] Recent apps category
-- [ ] Keyboard navigation support
-- [ ] Multi-monitor improvements
-
----
-
-## 📜 License
-
-**GNU General Public License v3.0 or later**
-
-```
-Copyright (C) 2025 CAL (calamytryx)
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-```
-
-See [LICENSE](LICENSE) for full text.
-
----
-
-## 🙏 Credits
-
-- Inspired by **Minecraft's Creative Inventory** UI
-- Built for **KDE Plasma 6**
-- Avatar service: [mc-heads.net](https://mc-heads.net)
-- Icons: KDE Breeze icon theme
-
----
-
-## 💬 Fun Fact
-
-> "MineLauncher" is named after the Minecraft Creative Inventory — but here, you're not placing blocks… you're **launching apps like items!** 😆
-
----
-
-## 📸 Screenshots
-
-The launcher features:
-- **9×5 scrollable grid** with Minecraft-style borders
-- **Category tabs** at top and bottom
-- **Search bar** with real-time filtering
-- **Favorites bar** with up to 10 pinned apps
-- **User profile** with Minecraft avatar
-- **Power controls** for system management
-- **Custom scrollbar** matching Minecraft's UI style
-
-Check `preview.png` and `preview2.png` for visual examples!
+- Inspired by the Minecraft Creative Inventory interface.
+- Built for KDE Plasma 6.
+- Default avatars from [mc-heads.net](https://mc-heads.net).
+- Icons from the KDE Breeze icon theme.
