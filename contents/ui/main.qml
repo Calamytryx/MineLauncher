@@ -287,8 +287,22 @@ PlasmoidItem {
     }
 
     function launchApp(desktopFile) {
-        // Simple desktop file launch
-        executable.connectSource("gtk-launch " + desktopFile);
+        if (!desktopFile)
+            return;
+
+        // Reduce a storage id / path to the bare desktop name that kstart wants,
+        // e.g. "/usr/share/applications/org.kde.kate.desktop" -> "org.kde.kate".
+        var app = desktopFile;
+        if (app.indexOf("/") !== -1)
+            app = app.substring(app.lastIndexOf("/") + 1);
+        if (app.endsWith(".desktop"))
+            app = app.substring(0, app.length - 8);
+
+        // Launch the way KDE itself does: kstart resolves the .desktop through the
+        // KService database (same source as this menu) and honours Exec field codes,
+        // Terminal=true, D-Bus activation and startup notification. gtk-launch used a
+        // separate GIO database, so apps missing from it never started.
+        executable.connectSource("kstart --application \"" + app + "\"");
     }
 
 }
