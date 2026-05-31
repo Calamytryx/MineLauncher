@@ -608,7 +608,7 @@ Kicker.DashboardWindow {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptLogout")
+                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt  org.kde.LogoutPrompt.promptLogout")
                                         }
                                     }
 
@@ -668,7 +668,7 @@ Kicker.DashboardWindow {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptReboot")
+                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt org.kde.LogoutPrompt.promptReboot ")
                                         }
                                     }
 
@@ -728,7 +728,7 @@ Kicker.DashboardWindow {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptShutdown")
+                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptShutDown")
                                         }
                                     }
                                 }
