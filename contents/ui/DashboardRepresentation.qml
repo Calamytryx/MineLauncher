@@ -728,7 +728,7 @@ Kicker.DashboardWindow {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt promptShutDown")
+                                            onClicked: executable2.connectSource("qdbus org.kde.LogoutPrompt /LogoutPrompt org.kde.LogoutPrompt.promptShutDown")
                                         }
                                     }
                                 }
